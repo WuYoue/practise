@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bind函数</title>
+  </head>
+  <body>
+    <script>
+      function myBind(thisArg, ...args) {
+        if (typeof this !== "function") throw Error("调用bind必须是函数");
+        thisArg = Object(thisArg ?? globalThis);
+
+        const _this = this;
+
+        return function (...args2) {
+          const fnSymbol = Symbol("fn");
+
+          if (new.target) return new _this(...args, ...args2);
+          // console.log(_this);
+
+          thisArg[fnSymbol] = _this;
+
+          let result = thisArg[fnSymbol](...args, ...args2);
+          Reflect.deleteProperty(thisArg, fnSymbol);
+          return result;
+        };
+      }
+
+      Function.prototype.myBind = myBind;
+      let i = 0;
+      function foo(a, b, c) {
+        console.log(this);
+
+        if (i < 3) {
+          i++;
+          foo(a, b, c);
+        }
+        console.log(a, b, c);
+
+        return "a";
+      }
+
+      // function Person(name, age) {
+      //   this.name = name;
+      //   this.age = age;
+      // }
+      // Person.prototype.sayHello = function () {
+      //   console.log(`我叫 ${this.name}，今年 ${this.age} 岁`);
+      // };
+
+      // const bindPerson = Person.bind(null, "张三");
+
+      // console.log(new bindPerson(1));
+      // console.log(new bindPerson(2));
+      // console.log(new bindPerson(3));
+      // console.log(new bindPerson(4));
+
+      const foo2 = foo.myBind({ name: "liu" }, 1);
+      console.log(foo2(2, 3));
+      // const b = foo.bind({ name: "wang" });
+      // const a = new b();
+      // console.log(a);
+    </script>
+  </body>
+</html>

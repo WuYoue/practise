@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>防抖函数</title>
+  </head>
+  <body>
+    <button>防抖</button>
+    <button>取消</button>
+    <script>
+      const debounced = debounce(
+        (e) => {
+          // 这是一个事件处理函数，接收一个事件对象 e 作为参数
+          console.log(e); // 打印事件对象到控制台
+
+          console.log("-----------------"); // 打印分隔线，用于控制台输出分隔
+        },
+        2000, // 设置延迟时间为 2000 毫秒（2秒）
+        true, // 设置为 true，表示在延迟开始前立即调用函数
+      );
+      const btn = document.querySelector("button"); // 获取页面中第一个按钮元素
+      const btn2 = document.querySelector("button:nth-child(2)"); // 获取页面中第二个按钮元素
+      btn.addEventListener("click", debounced); // 为第一个按钮添加点击事件监听器，使用防抖函数 debounced 处理点击事件
+      btn2.addEventListener("click", debounced.cancel); // 为btn2按钮添加点击事件监听，当点击时触发防抖函数的取消方法
+
+      function debounce(fn, time, immediate = false) {
+        let closeSetTimeout = null; // 定义一个变量用于存储setTimeout的返回值，用于后续清除定时器
+
+        function debounced(...arg) {
+          /**         * 防抖函数         * @param {...any} arg - 接收任意数量的参数，用于传递给实际执行的函数         */
+          let isNow = !closeSetTimeout; // 判断是否是立即执行的情况          // 如果closeSetTimeout为null，表示当前没有定时器，可以立即执行
+
+          if (closeSetTimeout) {
+            // 如果已经存在定时器，则清除之前的定时器
+            clearTimeout(closeSetTimeout);
+          }
+          if (immediate) {
+            // 判断是否需要立即执行
+            if (isNow) {
+              // 如果是立即执行且当前没有定时器，则调用函数
+              fn.call(this, ...arg); // 使用call方法保持this的上下文，并传递参数
+            }
+            closeSetTimeout = setTimeout(() => {
+              // 设置一个定时器，在指定时间后将closeSetTimeout置为null
+              closeSetTimeout = null;
+            }, time);
+          } else {
+            // 如果定时器不存在，则创建一个新的定时器
+            closeSetTimeout = setTimeout(() => {
+              // 设置一个定时器，在指定时间后执行传入的函数
+              fn.call(this, ...arg); // 使用call方法调用函数，并传递正确的this上下文和参数
+              closeSetTimeout = null; // 执行完成后将定时器引用置为null
+            }, time); // time为延迟执行的时间
+          }
+        }
+
+        function cancel() {
+          // 定义取消函数，用于取消未执行的延迟函数
+          if (closeSetTimeout) {
+            // 如果定时器存在，则清除定时器
+            clearTimeout(closeSetTimeout);
+            closeSetTimeout = null; // 将定时器引用置为null
+          }
+        }
+
+        debounced.cancel = cancel; // 为防抖函数添加取消方法
+        return debounced; // 返回防抖后的函数
+      }
+    </script>
+  </body>
+</html>

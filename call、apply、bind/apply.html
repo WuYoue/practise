@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>apply函数</title>
+  </head>
+  <body>
+    <script>
+      function myApply(thisArg, argsArray) {
+        argsArray = argsArray == null ? [] : Array.from(argsArray);
+
+        thisArg = Object(thisArg ?? globalThis);
+        const fnSymbol = Symbol("fn");
+
+        thisArg[fnSymbol] = this;
+        let result = thisArg[fnSymbol](...argsArray);
+
+        Reflect.deleteProperty(thisArg, fnSymbol);
+
+        return result;
+      }
+
+      Function.prototype.myApply = myApply;
+
+      function foo(a, b) {
+        console.log(this, a, b);
+        return "a + b";
+      }
+
+      console.log(
+        foo.myApply(null, () => {
+          return (1, 2);
+        }),
+      );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>节流函数</title>
+  </head>
+  <body>
+    <button>节流</button>
+    <button>取消</button>
+    <script>
+      const btn = document.querySelector("button");
+      const btn2 = document.querySelector("button:nth-child(2)");
+
+      const throttled = throttle(function (e) {
+        console.log(e, this);
+      }, 2000);
+      btn.addEventListener("click", throttled);
+
+      btn2.addEventListener("click", throttled.cancel);
+
+      function throttle(fn, time, options = { leading: true, trailing: true }) {
+        let timer = null;
+        let lastTime = 0;
+        function throttled(...args) {
+          const nowTime = Date.now();
+          if (lastTime === 0 && options.leading === false) lastTime = nowTime;
+          const remainTime = time - (nowTime - lastTime);
+          if (remainTime <= 0 || remainTime > time) {
+            if (timer) {
+              clearTimeout(timer);
+              timer = null;
+            }
+            fn.call(this, ...args);
+            lastTime = nowTime;
+          } else if (!timer && options.trailing) {
+            console.log("------------");
+
+            timer = setTimeout(() => {
+              fn.call(this, ...args);
+              timer = null;
+              lastTime = options.leading ? Date.now() : 0;
+            }, remainTime);
+          }
+        }
+        function cancel() {
+          clearTimeout(timer);
+          timer = null;
+          lastTime = 0;
+        }
+
+        throttled.cancel = cancel;
+        return throttled;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Call函数</title>
+  </head>
+  <body>
+    <script>
+      function myCall(thisArg, ...args) {
+        thisArg = Object(thisArg ?? globalThis);
+
+        const fn = Symbol("fn");
+
+        thisArg[fn] = this;
+        let result = thisArg[fn](...args);
+
+        Reflect.deleteProperty(thisArg, fn);
+        // delete thisArg[fn];
+
+        console.log(thisArg);
+
+        return result;
+      }
+
+      Function.prototype.myCall = myCall;
+
+      function foo(a, b) {
+        console.log(a, b, this);
+        return "a";
+      }
+      console.log(foo());
+
+      console.log(foo.myCall(1, 1, 2));
+    </script>
+  </body>
+</html>
