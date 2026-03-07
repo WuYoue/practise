@@ -1,6 +1,15 @@
 <script setup lang="ts">
-import { da } from 'element-plus/es/locales.mjs'
-import HTTP from './servers/HTTP'
+import { computed, toRefs, watch, watchEffect } from 'vue'
+import useLoginStore from './stores/login/login'
+import roleMapMenu from './utils/rolesMapMenu'
+
+// const loginStore = useLoginStore()
+// const { userRoleMenu } = toRefs(loginStore)
+// watchEffect(() => {
+//   roleMapMenu(userRoleMenu.value)
+// })
+
+// console.log(userRoleMenu)
 
 // HTTP.post({
 //   url: '/login',

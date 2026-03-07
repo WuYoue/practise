@@ -1,3 +1,4 @@
+import useLoginStore from '@/stores/login/login'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const router = createRouter({
@@ -9,6 +10,7 @@ const router = createRouter({
     },
     {
       path: '/home',
+      name: 'home',
       component: () => import('@/views/home/home.vue'),
     },
     {
@@ -21,5 +23,11 @@ const router = createRouter({
     },
   ],
 })
+
+export async function setupRouter(app: any) {
+  const loginStore = useLoginStore()
+  await loginStore.getUserCacheInfo()
+  app.use(router)
+}
 
 export default router
