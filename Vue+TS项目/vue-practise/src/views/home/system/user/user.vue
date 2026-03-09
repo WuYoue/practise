@@ -1,7 +1,9 @@
 <script setup>
 import useUserStore from '@/stores/user/user'
 import { storeToRefs } from 'pinia'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import Search from '@/components/search/search.vue'
+import SearchConfig from './config/SearchConfig'
 
 const formInline = reactive({
   name: '',
@@ -15,55 +17,48 @@ const pageInfo = reactive({
   size: 10,
 })
 
+const currentPage = ref(1)
+
 const userStore = useUserStore()
-const onSubmit = () => {
+userStore.getUserList({
+  ...pageInfo,
+})
+
+const onSearch = (form) => {
+  console.log(form)
+
+  currentPage.value = 1
   userStore.getUserList({
-    ...formInline,
-    ...pageInfo,
+    offset: 0,
+    size: 10,
+    ...form,
   })
 }
 
-const { usersList } = storeToRefs(userStore)
+const handleSizeChange = (val) => {
+  pageInfo.size = val
+  userStore.getUserList({
+    ...pageInfo,
+    ...formInline,
+  })
+}
+
+const handleCurrentChange = (val) => {
+  pageInfo.offset = (val - 1) * pageInfo.size
+  userStore.getUserList({
+    ...pageInfo,
+    ...formInline,
+  })
+}
+
+const { usersList, totalCount } = storeToRefs(userStore)
 </script>
 
 <template>
   <div class="user">
-    <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="用户名">
-        <el-input v-model="formInline.name" placeholder="请输入用户名" clearable />
-      </el-form-item>
-      <el-form-item label="真实姓名">
-        <el-input v-model="formInline.realname" placeholder="请输入真实姓名" clearable />
-      </el-form-item>
-      <el-form-item label="手机号">
-        <el-input v-model="formInline.cellphone" placeholder="请输入手机号" clearable />
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-select
-          v-model="formInline.enable"
-          placeholder="请选择状态"
-          clearable
-          style="width: 100%"
-        >
-          <el-option label="启用" :value="1" />
-          <el-option label="禁用" :value="0" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="创建时间">
-        <el-date-picker
-          v-model="formInline.createAt"
-          type="daterange"
-          unlink-panels
-          range-separator="到"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
-      </el-form-item>
-    </el-form>
+    <Search :searchConfig="SearchConfig" @search="onSearch"></Search>
     <el-table :data="usersList" border style="width: 100%">
+      <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="name" label="姓名" width="180" />
       <el-table-column prop="realname" label="真实姓名" />
       <el-table-column prop="cellphone" label="手机号" width="180" />
@@ -71,6 +66,14 @@ const { usersList } = storeToRefs(userStore)
       <el-table-column prop="createAt" label="创建时间" />
       <el-table-column prop="updateAt" label="更新时间" />
     </el-table>
+    <el-pagination
+      :page-sizes="[10, 20, 30, 40]"
+      layout="total, sizes, prev, pager, next, jumper"
+      v-model:current-page="currentPage"
+      :total="totalCount"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
   </div>
 </template>
 

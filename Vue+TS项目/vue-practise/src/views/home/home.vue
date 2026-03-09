@@ -75,4 +75,7 @@ const toMenu = function (value) {
   width: 100%;
   height: 100%;
 }
+.el-menu {
+  /* height: 100%; */
+}
 </style>
