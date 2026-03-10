@@ -78,4 +78,11 @@ const toMenu = function (value) {
 .el-menu {
   /* height: 100%; */
 }
+h5 {
+  color: #fff;
+  font-size: 18px;
+}
+.el-aside {
+  background-color: #393649;
+}
 </style>

@@ -32,7 +32,16 @@ const handleCurrentChange = (currentPage) => {
         <el-table-column type="index" label="序号" width="60" />
       </template>
       <template v-for="item in props.tableConfig.propList">
-        <el-table-column v-bind="item" />
+        <el-table-column v-bind="item">
+          <template v-if="item.slotName" #default="scope">
+            <!-- {{ item.slotName }} -->
+            <!-- {{ scope.row }} -->
+            <slot :name="item.slotName" :row="scope.row">
+              <!-- {{ scope.row }}
+              {{ item.slotName }} -->
+            </slot>
+          </template>
+        </el-table-column>
       </template>
     </el-table>
   </div>

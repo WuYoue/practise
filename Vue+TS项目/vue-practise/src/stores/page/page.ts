@@ -1,7 +1,7 @@
 import { getList } from '@/servers/system/system'
 import { defineStore } from 'pinia'
 
-const usePageStore = defineStore('user', {
+const usePageStore = defineStore('page', {
   state: (): {
     pageList: any
     totalCount: number

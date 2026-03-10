@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Promise</title>
+  </head>
+  <body>
+    <script>
+      class myPromise {
+        state = "pending";
+        value = null;
+        reason = null;
+        _thenFns = {
+          resolvedFns: [],
+          rejectedFns: [],
+        };
+        constructor(executor) {
+          executor(this.resolve, this.reject);
+        }
+        resolve = (value) => {
+          if (this.state !== "pending") return;
+          this.state = "resolved";
+
+          console.log("resolve", value);
+
+          this.value = value;
+          queueMicrotask(() => {
+            console.log("resolve-queue");
+
+            this._thenFns.resolvedFns.forEach((fn) => fn(value));
+          });
+        };
+        reject = (reason) => {
+          if (this.state !== "pending") return;
+          this.state = "rejected";
+
+          console.log("reject", reason);
+          this.reason = reason;
+          queueMicrotask(() => {
+            console.log("reject-queue");
+
+            this._thenFns.rejectedFns.forEach((fn) => fn(reason));
+          });
+        };
+        then(onResolved = () => {}, onRejected = () => {}) {
+          return new myPromise((resolve, reject) => {
+            console.log(this);
+
+            if (this.state === "pending") {
+              if (onResolved)
+                this._thenFns.resolvedFns.push(() => {
+                  try {
+                    const result = onResolved(this.value);
+                    resolve(result);
+                  } catch (err) {
+                    reject(err);
+                  }
+                });
+              if (onRejected)
+                this._thenFns.rejectedFns.push(() => {
+                  try {
+                    const result = onRejected(this.reason);
+                    resolve(result);
+                  } catch (err) {
+                    reject(err);
+                  }
+                });
+            }
+            if (this.state === "resolved") {
+              queueMicrotask(() => {
+                try {
+                  const result = onResolved(this.value);
+                  resolve(result);
+                } catch (err) {
+                  reject(err);
+                }
+              });
+            }
+            if (this.state === "rejected") {
+              queueMicrotask(() => {
+                try {
+                  const result = onRejected(this.reason);
+                  resolve(result);
+                } catch (err) {
+                  reject(err);
+                }
+              });
+            }
+          });
+        }
+      }
+
+      const promise = new myPromise((resolve, reject) => {
+        console.log("promise的立即执行函数");
+
+        resolve("1111");
+        reject("2222");
+      });
+
+      promise
+        .then(
+          (res) => {
+            console.log("then1-1", res);
+            return "then1-1";
+          },
+          (rej) => {
+            console.log("then1-1", rej);
+            return "then1-1";
+          },
+        )
+        .then(
+          (res) => {
+            console.log("then1-2", res);
+            return "then1-2";
+          },
+          (rej) => {
+            console.log("then1-2", rej);
+            return "then1-2";
+          },
+        );
+      // .then(
+      //   (res) => {
+      //     console.log("then1-3", res);
+      //     return "then1-3";
+      //   },
+      //   (rej) => {
+      //     console.log("then1-3", rej);
+      //     return "then1-3";
+      //   },
+      // );
+
+      console.log("------------");
+
+      //   setTimeout(() => {
+      //     promise.then(
+      //       (res) => console.log("then2", res),
+      //       (rej) => console.log("then2", rej),
+      //     );
+      //   }, 10);
+    </script>
+  </body>
+</html>

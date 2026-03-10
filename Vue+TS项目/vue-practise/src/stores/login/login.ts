@@ -4,9 +4,10 @@ import roleMapMenu from '@/utils/rolesMapMenu'
 import { defineStore } from 'pinia'
 
 const useLoginStore = defineStore('login', {
-  state: (): { userRoleMenu: any[]; menuRoutes: any[] } => ({
+  state: (): { userRoleMenu: any[]; menuRoutes: any[]; userBtn: any[] } => ({
     userRoleMenu: [],
     menuRoutes: [],
+    userBtn: [],
   }),
   getters: {},
   actions: {
@@ -23,6 +24,21 @@ const useLoginStore = defineStore('login', {
       this.userRoleMenu = userRoleMenuResult.data
 
       this.menuRoutes = roleMapMenu(this.userRoleMenu)
+      console.log(this.menuRoutes)
+
+      this.userBtn = []
+      const getBtn = (menuList: any) => {
+        for (const item of menuList) {
+          if (item.children?.length > 0) {
+            getBtn(item.children)
+          } else if (item.permission) {
+            this.userBtn.push(item.permission)
+          }
+        }
+      }
+      getBtn(userRoleMenuResult.data)
+      console.log(this.userBtn)
+
       this.menuRoutes.forEach((route) => router.addRoute('home', route))
 
       router.push('/home')
@@ -33,9 +49,24 @@ const useLoginStore = defineStore('login', {
 
       const userRoleMenuResult = await getUserRoles(userInfoResult.data.role.id)
       console.log(userRoleMenuResult)
+      this.userBtn = []
+
+      const getBtn = (menuList: any) => {
+        for (const item of menuList) {
+          if (item.children?.length > 0) {
+            getBtn(item.children)
+          } else if (item.permission) {
+            this.userBtn.push(item.permission)
+          }
+        }
+      }
+      getBtn(userRoleMenuResult.data)
+      console.log(this.userBtn)
+
       this.userRoleMenu = userRoleMenuResult.data
 
       this.menuRoutes = roleMapMenu(this.userRoleMenu)
+      console.log(this.menuRoutes)
 
       this.menuRoutes.forEach((route) => router.addRoute('home', route))
     },

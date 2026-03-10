@@ -65,6 +65,28 @@ const { usersList, totalCount } = storeToRefs(userStore)
       <el-table-column prop="enable" label="状态" width="180" />
       <el-table-column prop="createAt" label="创建时间" />
       <el-table-column prop="updateAt" label="更新时间" />
+      <el-table-column label="操作">
+        <el-button
+          type="primary"
+          v-permission="'system:department:create'"
+          @click="edit(scope.row)"
+        >
+          create
+        </el-button>
+        <el-button type="danger" v-permission="'system:department:delete'" @click="edit(scope.row)">
+          delete
+        </el-button>
+        <el-button
+          type="warning"
+          v-permission="'system:department:update'"
+          @click="edit(scope.row)"
+        >
+          update
+        </el-button>
+        <el-button type="success" v-permission="'system:department:query'" @click="edit(scope.row)">
+          query
+        </el-button>
+      </el-table-column>
     </el-table>
     <el-pagination
       :page-sizes="[10, 20, 30, 40]"
