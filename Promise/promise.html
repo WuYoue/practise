@@ -142,22 +142,74 @@
             });
           });
         }
+        static allSettled(promises) {
+          return new myPromise((resolve) => {
+            const results = [];
+            promises.forEach((promise, index) => {
+              promise
+                .then((res) => {
+                  results[index] = {
+                    status: "fulfilled",
+                    value: res,
+                  };
+                  if (results.length === promises.length) {
+                    resolve(results);
+                  }
+                })
+                .catch((err) => {
+                  results[index] = {
+                    status: "rejected",
+                    reason: err,
+                  };
+                  if (results.length === promises.length) {
+                    console.log("allSettled");
+
+                    resolve(results);
+                  }
+                });
+            });
+          });
+        }
+        static race(promises) {
+          return new myPromise((resolve, reject) => {
+            promises.forEach((promise) => {
+              promise.then(resolve).catch(reject);
+            });
+          });
+        }
+
+        static any(promises) {
+          return new myPromise((resolve, reject) => {
+            const errors = [];
+            promises.forEach((promise, index) => {
+              promise.then(resolve).catch((err) => {
+                errors[index] = err;
+                if (errors.length === promises.length) {
+                  console.log("aaaaaaaaaaaaaaaa");
+
+                  reject(
+                    new AggregateError(errors, "All promises were rejected"),
+                  );
+                }
+              });
+            });
+          });
+        }
       }
       const P1 = new myPromise((resolve, reject) => {
         setTimeout(() => {
-          resolve("P1");
-        }, 1200);
+          reject("P1");
+        }, 1900);
       });
       const P2 = new myPromise((resolve, reject) => {
         setTimeout(() => {
-          resolve("P2");
+          reject("P2");
         }, 1000);
       });
       myPromise
-        .all([P1, P2])
+        .allSettled([P1, P2])
         .then((res) => {
           console.log(res);
-          console.log(res[0]);
         })
         .catch((err) => {
           console.log(err);
